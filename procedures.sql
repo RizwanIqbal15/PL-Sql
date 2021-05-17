@@ -56,6 +56,7 @@ select Calculation(10,20,'*') from dual;
 ---Cursor 
 -- In order to process all the emp records ...cursor comes into picture..
 ---In Pl/sql whenever we want to process row by row the use CURSOR....
+---implicit cursor gives us status of last DML....
 
 select * from emp;
 
@@ -78,7 +79,7 @@ fetch c1 into x,y,z;
 ---close cursor
 close c1;
 
---cursor program
+--cursor program/ normal loop cursor
 
 declare
 cursor c1 is select ename,sal,job from emp;
@@ -91,6 +92,18 @@ loop
 fetch c1 into vename,vsal,vjob;
 exit when c1%notfound;
 dbms_output.put_line(vename || '   ' || vsal ||'   ' || vjob);
+end loop;
+close c1;
+end;
+
+--- for Loop Cursor...
+
+declare
+cursor c1 is select * from emp;
+begin
+for r in c1
+loop
+dbms_output.put_line(r.ename || '   ' || r.sal);
 end loop;
 close c1;
 end;
