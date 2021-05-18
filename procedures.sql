@@ -1,111 +1,52 @@
---employee Table
-select * from emp;
 
---Creating a Procedure
---Procedure MAY or MAY NOT Return Values
-set SERVEROUTPUT ON
-
-create or replace procedure Raise_salary(E IN number, AMT IN number, S OUT number)
-
---E is IN-parameter / IN means the taking number from calling program
---AMT is IN-Parameter /IN means the taking number from calling program
---S is OUT-parameter / OUT means sending updated salary to calling program
-is
-begin
-update emp set sal = sal + AMT
-where empno = E;
-commit;
-select sal into s from emp where empno = E;
-end;
-
--- declaring a variables to receive value coming from procedure
-variable K number;
-
-select empno, sal from emp;
-
-
--- To execute the procedure
-
-execute Raise_salary(7782, 1000, :k);
-
--- To check updated value
-
-print : k
-
-----User Defined Function
-----Must Return the Values / by using return statement
-
-set serveroutput on
-
-create or replace function Calculation(a number, b number, op char) return number
-is 
-begin
-if op = '+' then
-then return(a+b);
-else if op = '-' then
-then return(a-b);
-else if op = '*' then
-then return(a*b);
-else
-return(a/b);
-end if;
-end;
-
-select Calculation(10,20,'*') from dual;
-
----Cursor 
--- In order to process all the emp records ...cursor comes into picture..
----In Pl/sql whenever we want to process row by row the use CURSOR....
----implicit cursor gives us status of last DML....
-
-select * from emp;
-
-/* steps to use cursor
-1) declare cursor
-2) open cursor
-3) fetch records
-4) close cursor
+---Packages---
+/* A package is a collection of procedures,variables,cursors and types
+all these are grouped into single unit is called PACKAGES...
 */
----declaring cursor
-cursor c1 is select * from emp
 
----open cursor
-open c1;
---- data stores in PGA ( program global Area)
+---advantages of packages---
+/* easy to manage, package supports Overloading---inside package u can defined 2 or more functions with same name, 
+  impoves performance*/
+  
+  --create a package---
+---1) package specification.
+---2) package body.
 
---- fetch records/ fetches one record at a time ...so add loop for multiple records...
-fetch c1 into x,y,z;
-
----close cursor
-close c1;
-
---cursor program/ normal loop cursor
-
-declare
-cursor c1 is select ename,sal,job from emp;
-vename emp.ename%type;
-vsal emp.sal%type;
-vjob emp.job%type;
-begin
-open c1;
-loop
-fetch c1 into vename,vsal,vjob;
-exit when c1%notfound;
-dbms_output.put_line(vename || '   ' || vsal ||'   ' || vjob);
-end loop;
-close c1;
+---specification( declaration)---
+set serveroutput on
+create or replace package hr
+as
+procedure hire (e in number, n in varchar2, j in varchar2, s in number, d in number);
+procedure fire (e in number);
 end;
 
---- for Loop Cursor...
+---body---
 
-declare
-cursor c1 is select * from emp;
-begin
-for r in c1
-loop
-dbms_output.put_line(r.ename || '   ' || r.sal);
-end loop;
-close c1;
+create or replace package body hr
+as
+procedure hire (e in number, n in varchar2, j in varchar2, s in number, d in number);
+is 
+begin 
+insert into emp(empno, ename, job, sal, deptno) values (e,n,j,s,d);
+commit;
+end hire;
+procedure fire (e in number);
+is begin
+delete from emp where empno = e;
+commit;
+end fire;
 end;
+
+--execute package---(one at a time)
+
+execute hr.hire(555, 'AAA', 'Clerk', 5000, 20);
+
+---execute fire ----
+
+execute hr.fire(555);
+
+
+
+
 
 
